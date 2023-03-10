@@ -1,3 +1,3 @@
-FROM scratch
-COPY multicast-proxy /multicast-proxy
-ENTRYPOINT /multicast-proxy
+FROM alpine
+COPY multicast-proxy /usr/bin/multicast-proxy
+ENTRYPOINT /usr/bin/multicast-proxy
