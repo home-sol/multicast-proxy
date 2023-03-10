@@ -12,8 +12,6 @@ before:
 builds:
   # Check and build binary for 32-bit architecture (FreeBSD/ARM)
   - id: 32-bit-arch
-    # Binary naming only required for Terraform CLI 0.12
-    binary: '{{ .ProjectName }}_v{{ .Version }}_x5'
     env:
       - CGO_ENABLED=0
     flags:
@@ -23,7 +21,7 @@ builds:
     goarch:
       - arm
     ldflags:
-      - -s -w -X version.ProviderVersion={{.Version}}
+      - -s -w -X github.com/home-sol/multicast-proxy/cmd.Version={{.Version}}
     mod_timestamp: '{{ .CommitTimestamp }}'
 snapshot:
   name_template: "{{ .Tag }}-next"
