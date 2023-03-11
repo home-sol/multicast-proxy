@@ -1,0 +1,13 @@
+{
+  "net_interface": "enp7s0",
+  "devices": {
+    "3C-52-82-B0-F5-3C": {
+      "description": "Printer-HPB0F53C",
+      "origin_pool": 103,
+      "shared_pools": [
+        10,
+        20
+      ]
+    }
+  }
+}

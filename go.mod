@@ -3,6 +3,7 @@ module github.com/home-sol/multicast-proxy
 go 1.19
 
 require (
+	github.com/google/gopacket v1.1.19
 	github.com/spf13/cobra v1.6.1
 	golang.org/x/net v0.8.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
