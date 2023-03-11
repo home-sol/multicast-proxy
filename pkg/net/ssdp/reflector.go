@@ -1,4 +1,4 @@
-package mdns
+package ssdp
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ func Reflector(intfName string, poolsMap map[uint16][]uint16, deviceToVLanTags m
 	intfMACAddress := intf.HardwareAddr
 
 	// Filter tagged bonjour traffic
-	filterTemplate := "not (ether src %s) and vlan and dst net (224.0.0.251 or ff02::fb) and udp dst port 5353"
+	filterTemplate := "not (ether src %s) and vlan and dst net (239.255.255.250 or ff02::c) and udp dst port 1900"
 	err = rawTraffic.SetBPFFilter(fmt.Sprintf(filterTemplate, intfMACAddress))
 	if err != nil {
 		log.Fatalf("Could not apply filter on network interface: %v", err)
@@ -35,25 +35,25 @@ func Reflector(intfName string, poolsMap map[uint16][]uint16, deviceToVLanTags m
 	// Get a channel of Bonjour packets to process
 	decoder := gopacket.DecodersByLayerName["Ethernet"]
 	source := gopacket.NewPacketSource(rawTraffic, decoder)
-	bonjourPackets := parsePacketsLazily(source)
+	ssdpPackets := parsePacketsLazily(source)
 
 	// Process Bonjours packets
-	for bonjourPacket := range bonjourPackets {
-		fmt.Println(bonjourPacket.packet.String())
+	for ssdpPacket := range ssdpPackets {
+		fmt.Println(ssdpPacket.packet.String())
 		var vlanTags []uint16
 		var hasVlanMapping bool
-		// Forward the mDNS query or response to appropriate VLANs
-		if bonjourPacket.isDNSQuery {
-			vlanTags, hasVlanMapping = poolsMap[*bonjourPacket.vlanTag]
+
+		if ssdpPacket.isSSDPQuery {
+			vlanTags, hasVlanMapping = poolsMap[*ssdpPacket.vlanTag]
 		} else {
-			vlanTags, hasVlanMapping = deviceToVLanTags[bonjourPacket.srcMAC.String()]
+			vlanTags, hasVlanMapping = deviceToVLanTags[ssdpPacket.srcMAC.String()]
 		}
 
 		if !hasVlanMapping {
 			continue
 		}
 		for _, tag := range vlanTags {
-			if err := sendBonjourPacket(rawTraffic, &bonjourPacket, tag, intfMACAddress); err != nil {
+			if err := sendSSDPPacket(rawTraffic, &ssdpPacket, tag, intfMACAddress); err != nil {
 				log.Printf("Could not send packet to VLAN %d: %v", tag, err)
 			}
 		}
