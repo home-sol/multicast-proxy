@@ -21,4 +21,5 @@ func init() {
 	interfaces.Setup(root)
 	ssdp.Setup(root)
 	mdns.Setup(root)
+	root.AddCommand(cmdServe)
 }
