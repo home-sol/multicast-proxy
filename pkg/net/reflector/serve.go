@@ -32,7 +32,7 @@ func serve(cfg *Config, poolsMap map[uint16][]uint16) error {
 	intfMACAddress := intf.HardwareAddr
 
 	// Filter tagged bonjour traffic
-	filterTemplate := "not (ether src %s) and vlan and dst net (239.255.255.250 or ff02::c) and udp dst port 1900"
+	filterTemplate := "not (ether src %s) and vlan and ((dst net (239.255.255.250 or ff02::c) and udp dst port 1900) or (dst net (224.0.0.251 or ff02::fb) and udp dst port 5353))"
 	err = rawTraffic.SetBPFFilter(fmt.Sprintf(filterTemplate, intfMACAddress))
 	if err != nil {
 		log.Fatalf("Could not apply filter on network interface: %v", err)
@@ -45,7 +45,6 @@ func serve(cfg *Config, poolsMap map[uint16][]uint16) error {
 
 	// Process packets
 	for packet := range packets {
-		fmt.Println(packet.packet.String())
 		var vlanTags []uint16
 		var hasVlanMapping bool
 
@@ -53,7 +52,8 @@ func serve(cfg *Config, poolsMap map[uint16][]uint16) error {
 			vlanTags, hasVlanMapping = poolsMap[*packet.vlanTag]
 		} else {
 			var device Device
-			device, hasVlanMapping = cfg.Devices[MacAddress(packet.srcMAC.String())]
+			deviceMacAddr := MacAddress(packet.srcMAC.String())
+			device, hasVlanMapping = cfg.Devices[deviceMacAddr]
 			if hasVlanMapping {
 				vlanTags = device.SharedPools
 			}
@@ -62,8 +62,9 @@ func serve(cfg *Config, poolsMap map[uint16][]uint16) error {
 		if !hasVlanMapping {
 			continue
 		}
+		fmt.Printf("%s -> Fwd VLANs: %v\n", packet, vlanTags)
 		for _, tag := range vlanTags {
-			if err := sendSSDPPacket(rawTraffic, &packet, tag, intfMACAddress); err != nil {
+			if err := sendPacket(rawTraffic, &packet, tag, intfMACAddress); err != nil {
 				log.Printf("Could not send packet to VLAN %d: %v", tag, err)
 			}
 		}

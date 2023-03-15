@@ -23,10 +23,10 @@ var (
 	crlf                 = []byte("\r\n")
 )
 
-// Handler is the interface by which received HTTPU messages are passed to
+// Handler is the interface by which received SSDP messages are passed to
 // handling code.
 type Handler interface {
-	// ServeMessage is called for each HTTPU message received. peerAddr contains
+	// ServeMessage is called for each SSDP message received. peerAddr contains
 	// the address that the message was received from.
 	ServeMessage(r *http.Request) ([]*http.Response, error)
 }

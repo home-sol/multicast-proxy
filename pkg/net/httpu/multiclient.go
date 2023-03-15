@@ -14,7 +14,7 @@ type multiClient struct {
 	delegates []Client
 }
 
-// NewClientInterfaces creates a HTTPU client that multiplexes to all multicast-capable
+// NewClientInterfaces creates a SSDP client that multiplexes to all multicast-capable
 // IPv4 addresses on the host. Returns a function to clean up once the client is
 // no longer required.
 func NewClientInterfaces(interfaceList []net.Interface) (Client, error) {
@@ -29,7 +29,7 @@ func NewClientInterfaces(interfaceList []net.Interface) (Client, error) {
 		c, err := NewClientAddr(addr)
 		if err != nil {
 
-			return nil, fmt.Errorf("creating HTTPU client for address %s: %w", addr, err)
+			return nil, fmt.Errorf("creating SSDP client for address %s: %w", addr, err)
 		}
 		delegates = append(delegates, c)
 	}
