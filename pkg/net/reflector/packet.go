@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
-	"github.com/home-sol/multicast-proxy/pkg/net/httpu"
 	"github.com/home-sol/multicast-proxy/pkg/net/ssdp"
 )
 
@@ -115,9 +114,9 @@ func parseUDPLayer(packet gopacket.Packet) (payload []byte) {
 }
 
 func parseSSDPLayer(payload []byte) (bool, bool, []string) {
-	packet := gopacket.NewPacket(payload, httpu.LayerTypeSSDP, gopacket.Default)
-	if parsedSSDP := packet.Layer(httpu.LayerTypeSSDP); parsedSSDP != nil {
-		ssdpPacket := parsedSSDP.(*httpu.SSDP)
+	packet := gopacket.NewPacket(payload, ssdp.LayerTypeSSDP, gopacket.Default)
+	if parsedSSDP := packet.Layer(ssdp.LayerTypeSSDP); parsedSSDP != nil {
+		ssdpPacket := parsedSSDP.(*ssdp.SSDP)
 		if ssdpPacket.Method == ssdp.MethodSearch {
 			return true, true, []string{ssdpPacket.Headers["ST"]}
 		}

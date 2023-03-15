@@ -1,4 +1,4 @@
-package httpu
+package ssdp
 
 import (
 	"bufio"
