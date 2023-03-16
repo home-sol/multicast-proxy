@@ -1,6 +1,7 @@
 package reflector
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -10,13 +11,13 @@ import (
 	"github.com/google/gopacket/pcap"
 )
 
-func Serve(cfg *Config) error {
+func Serve(ctx context.Context, cfg *Config) error {
 	poolsMap := mapByPool(cfg.Devices)
 
-	return serve(cfg, poolsMap)
+	return serve(ctx, cfg, poolsMap)
 }
 
-func serve(cfg *Config, poolsMap map[uint16][]uint16) error {
+func serve(ctx context.Context, cfg *Config, poolsMap map[uint16][]uint16) error {
 	// Get a handle on the network interface
 	rawTraffic, err := pcap.OpenLive(cfg.NetInterface, 65536, true, time.Second)
 	if err != nil {
@@ -44,28 +45,33 @@ func serve(cfg *Config, poolsMap map[uint16][]uint16) error {
 	packets := parsePacketsLazily(source)
 
 	// Process packets
-	for packet := range packets {
-		var vlanTags []uint16
-		var hasVlanMapping bool
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case packet := <-packets:
+			var vlanTags []uint16
+			var hasVlanMapping bool
 
-		if packet.isQuery {
-			vlanTags, hasVlanMapping = poolsMap[*packet.vlanTag]
-		} else {
-			var device Device
-			deviceMacAddr := MacAddress(packet.srcMAC.String())
-			device, hasVlanMapping = cfg.Devices[deviceMacAddr]
-			if hasVlanMapping {
-				vlanTags = device.SharedPools
+			if packet.isQuery {
+				vlanTags, hasVlanMapping = poolsMap[*packet.vlanTag]
+			} else {
+				var device Device
+				deviceMacAddr := MacAddress(packet.srcMAC.String())
+				device, hasVlanMapping = cfg.Devices[deviceMacAddr]
+				if hasVlanMapping {
+					vlanTags = device.SharedPools
+				}
 			}
-		}
 
-		if !hasVlanMapping {
-			continue
-		}
-		fmt.Printf("%s -> Fwd VLANs: %v\n", packet, vlanTags)
-		for _, tag := range vlanTags {
-			if err := sendPacket(rawTraffic, &packet, tag, intfMACAddress); err != nil {
-				log.Printf("Could not send packet to VLAN %d: %v", tag, err)
+			if !hasVlanMapping {
+				continue
+			}
+			fmt.Printf("%s -> Fwd VLANs: %v\n", packet, vlanTags)
+			for _, tag := range vlanTags {
+				if err := sendPacket(rawTraffic, &packet, tag, intfMACAddress); err != nil {
+					log.Printf("Could not send packet to VLAN %d: %v", tag, err)
+				}
 			}
 		}
 	}

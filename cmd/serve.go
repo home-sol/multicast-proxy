@@ -28,6 +28,6 @@ var cmdServe = &cobra.Command{
 			return err
 		}
 
-		return reflector.Serve(&cfg)
+		return reflector.Serve(cmd.Context(), &cfg)
 	},
 }

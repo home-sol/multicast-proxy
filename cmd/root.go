@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"github.com/home-sol/multicast-proxy/cmd/interfaces"
-	"github.com/home-sol/multicast-proxy/cmd/mdns"
 	"github.com/home-sol/multicast-proxy/cmd/ssdp"
 	"github.com/spf13/cobra"
 )
@@ -18,8 +16,6 @@ func Execute() error {
 }
 
 func init() {
-	interfaces.Setup(root)
 	ssdp.Setup(root)
-	mdns.Setup(root)
 	root.AddCommand(cmdServe)
 }
