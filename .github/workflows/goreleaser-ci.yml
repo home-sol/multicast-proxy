@@ -49,7 +49,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           args: check
-  build-32-bit:
+  build:
   # Run a single compiler check for 32-bit architecture (FreeBSD/ARM)
     runs-on: ubuntu-latest
     steps:
@@ -66,4 +66,4 @@ jobs:
       - name: goreleaser build
         uses: goreleaser/goreleaser-action@v2
         with:
-          args: build --config .github/goreleaser-cross-compiler-test.yml --id 32-bit-arch --snapshot
+          args: build --clean --snapshot
