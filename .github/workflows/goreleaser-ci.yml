@@ -53,6 +53,8 @@ jobs:
   # Run a single compiler check for 32-bit architecture (FreeBSD/ARM)
     runs-on: ubuntu-latest
     steps:
+      - name: install libcap
+        run: sudo apt-get install -y libpcap-dev
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
         with:
