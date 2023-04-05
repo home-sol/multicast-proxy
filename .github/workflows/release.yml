@@ -16,6 +16,9 @@ jobs:
       packages: write
     runs-on: ubuntu-latest
     steps:
+      - name: install libcap
+        run: sudo apt-get install -y libpcap-dev
+
       # Checkout the repo
       - name: 'Checkout'
         uses: actions/checkout@v3
