@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
           go-version-file: go.mod
       - uses: actions/cache@v2
@@ -49,12 +49,14 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           args: check
-  build-32-bit:
+  build:
   # Run a single compiler check for 32-bit architecture (FreeBSD/ARM)
     runs-on: ubuntu-latest
     steps:
+      - name: install libcap
+        run: sudo apt-get install -y libpcap-dev
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
           go-version-file: go.mod
       - uses: actions/cache@v2
@@ -66,4 +68,4 @@ jobs:
       - name: goreleaser build
         uses: goreleaser/goreleaser-action@v2
         with:
-          args: build --config .github/goreleaser-cross-compiler-test.yml --id 32-bit-arch --snapshot
+          args: build --clean --snapshot

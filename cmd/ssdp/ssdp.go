@@ -9,7 +9,6 @@ var cmdSSDP = &cobra.Command{
 
 func Setup(cmd *cobra.Command) {
 	cmdSSDP.AddCommand(cmdListen)
-	cmdSSDP.AddCommand(cmdProxy)
 	cmdSSDP.AddCommand(cmdDiscover)
 	cmd.AddCommand(cmdSSDP)
 }
