@@ -18,8 +18,14 @@ func Serve(ctx context.Context, cfg *Config) error {
 }
 
 func serve(ctx context.Context, cfg *Config, poolsMap map[uint16][]uint16) error {
+	pcapIntername := cfg.NetInterface
+
+	// Windows specific override
+	if cfg.WindowsInterface != "" {
+		pcapIntername = cfg.WindowsInterface
+	}
 	// Get a handle on the network interface
-	rawTraffic, err := pcap.OpenLive(cfg.NetInterface, 65536, true, time.Second)
+	rawTraffic, err := pcap.OpenLive(pcapIntername, 65536, true, time.Second)
 	if err != nil {
 		return fmt.Errorf("could not open socket on network interface %s: %w", cfg.NetInterface, err)
 	}

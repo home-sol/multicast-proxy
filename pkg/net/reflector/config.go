@@ -3,8 +3,9 @@ package reflector
 type MacAddress string
 
 type Config struct {
-	NetInterface string `mapstructure:"net_interface"`
-	Devices      map[MacAddress]Device
+	NetInterface     string `mapstructure:"net_interface"`
+	WindowsInterface string `mapstructure:"windows_net_interface"`
+	Devices          map[MacAddress]Device
 }
 
 type Device struct {
