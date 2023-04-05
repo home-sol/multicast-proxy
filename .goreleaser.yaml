@@ -17,6 +17,7 @@ builds:
       - -trimpath
     goos:
       - linux
+      - windows
     goarch:
       - amd64
     ldflags:
